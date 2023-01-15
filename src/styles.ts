@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
         marginBottom: 40
     },
     progressBar:{
-        marginHorizontal: 75,
+        marginHorizontal:72,
         marginBottom: 20
     },
     image:{
@@ -25,7 +25,14 @@ export const styles = StyleSheet.create({
         borderRadius: 5
     },
     containerTexts:{
-        marginLeft: 80
+        marginLeft: 77
+       
+    },
+    containerPlayer:{   
+        flexDirection: "row",
+        justifyContent: "space-evenly",
+        marginBottom: 45,
+        marginHorizontal: -23
        
     },
     text:{
