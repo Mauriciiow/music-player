@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   SafeAreaView,
   Text,
@@ -10,50 +10,67 @@ import {
 import ProgressBar from './components/ProgressBar';
 import { styles } from './styles';
 import Icon from "react-native-vector-icons/FontAwesome"
+import { convertTime } from './services/config';
 
 const App = () => {
 
-  let [initial, setInitial] = useState(0)
-  const totalTime = 140
-  let [progress, setProgress] = useState(0)
-  let [remainingTime, setRemainingTime] = useState(totalTime)
-  let intervalRef = useRef<number | null>(null) 
-  const [pressed, setPressed] = useState(false)
+  const initialTimeRef = useRef(0)
+  const totalTimeRef = useRef(5)
+  const progressRef = useRef(0)
+  const remainingTimeRef = useRef(totalTimeRef.current)
+  const intervalRef = useRef<number | null>(null) 
+ 
   
- const play = ()=>{
-  setPressed(true)
-  if (remainingTime === 0) {  
-    initial = 0
-    progress = 0
-    remainingTime = totalTime
-  }
-  intervalRef.current = setInterval(()=>{
-    initial = initial + 1
-    progress = (initial / totalTime) * 100
-    remainingTime = totalTime - initial
-    setInitial(initial)
-    setProgress(progress)
-    setRemainingTime(remainingTime)
-    
-    if (remainingTime === 0) {  
-      clearInterval(intervalRef.current as number)
-      setPressed(false)
-    }
-  }, 1000)
- }
+  const [pressed, setPressed] = useState(false)
+  const [initialTime, setInitialTime] = useState(initialTimeRef.current)
+  const [progress, setProgress] = useState(progressRef.current)
+  const [remainingTime, setremainingTime] = useState(totalTimeRef.current)
+  
 
+  const play = ()=>{
+    setPressed(true)
+    if (remainingTimeRef.current === 0) {  
+      initialTimeRef.current = 0
+      progressRef.current = 0
+      remainingTimeRef.current = totalTimeRef.current
+    
+    }
+    intervalRef.current = setInterval(()=>{
+      initialTimeRef.current = initialTimeRef.current+ 1
+      setInitialTime(initialTimeRef.current)
+      progressRef.current = (initialTimeRef.current / totalTimeRef.current) * 100
+      setProgress(progressRef.current)
+      remainingTimeRef.current = totalTimeRef.current - initialTimeRef.current
+      setremainingTime(remainingTimeRef.current)
+      
+      if (remainingTimeRef.current === 0) {  
+        clearInterval(intervalRef.current as number)
+        setPressed(false)
+      }
+    }, 1000)
+   }
  const pause = ()=>{
   setPressed(false)
   clearInterval(intervalRef.current as number)
  }
 
- const convertTime = (time: number)=>{
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
- 
- const minutesConverted = minutes.toString().padStart(2, '0')
- const secondsConverted = seconds.toString().padStart(2, '0');
- return `${minutesConverted}:${secondsConverted}`
+ const back = ()=>{
+  initialTimeRef.current = 0
+  setInitialTime(initialTimeRef.current)
+  progressRef.current = 0
+  setProgress( progressRef.current)
+  remainingTimeRef.current = 0
+  setremainingTime(remainingTimeRef.current)
+
+ }
+
+ const forward = ()=>{
+    totalTimeRef.current = Math.floor(Math.random() * 120) + 120
+    initialTimeRef.current = 0
+    setInitialTime(initialTimeRef.current)
+    remainingTimeRef.current = totalTimeRef.current
+    setremainingTime(remainingTimeRef.current)
+    
  }
 
 
@@ -68,7 +85,7 @@ const App = () => {
           <Text style={styles.textOpacity}>Player</Text>
         </View>
         <View style={styles.containerPlayer}> 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={back}>
           <Icon name='backward' size={25} color="white"/>
         </TouchableOpacity>
         {pressed ? (
@@ -82,7 +99,7 @@ const App = () => {
         <Icon name='play' size={25} color="white"/>
       </TouchableOpacity>
       )}
-        <TouchableOpacity>
+        <TouchableOpacity onPress={forward}>
          <Icon name='forward' size={25} color="white"/>
         </TouchableOpacity>
         </View>
@@ -90,7 +107,7 @@ const App = () => {
           <ProgressBar progress={progress}/>
         </View>   
       <View style={styles.minutes}>
-        <Text style={styles.textMinutes}>{convertTime(initial)}</Text>
+        <Text style={styles.textMinutes}>{convertTime(initialTime)}</Text>
         <Text style={styles.textMinutes}>{convertTime(remainingTime)}</Text>
       </View>
       </View>
