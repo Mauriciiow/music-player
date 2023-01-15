@@ -14,25 +14,30 @@ import Icon from "react-native-vector-icons/FontAwesome"
 const App = () => {
 
   let [initial, setInitial] = useState(0)
-  const finalTime = 5
+  const totalTime = 140
   let [progress, setProgress] = useState(0)
-  let [remainingTime, setRemainingTime] = useState(finalTime)
+  let [remainingTime, setRemainingTime] = useState(totalTime)
   let intervalRef = useRef<number | null>(null) 
   const [pressed, setPressed] = useState(false)
   
  const play = ()=>{
   setPressed(true)
+  if (remainingTime === 0) {  
+    initial = 0
+    progress = 0
+    remainingTime = totalTime
+  }
   intervalRef.current = setInterval(()=>{
     initial = initial + 1
-    progress = (initial / finalTime) * 100
-    remainingTime = finalTime - initial
+    progress = (initial / totalTime) * 100
+    remainingTime = totalTime - initial
     setInitial(initial)
     setProgress(progress)
     setRemainingTime(remainingTime)
- 
-    if (initial === finalTime) {  
+    
+    if (remainingTime === 0) {  
       clearInterval(intervalRef.current as number)
-      intervalRef.current = null;
+      setPressed(false)
     }
   }, 1000)
  }
@@ -40,6 +45,15 @@ const App = () => {
  const pause = ()=>{
   setPressed(false)
   clearInterval(intervalRef.current as number)
+ }
+
+ const convertTime = (time: number)=>{
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+ 
+ const minutesConverted = minutes.toString().padStart(2, '0')
+ const secondsConverted = seconds.toString().padStart(2, '0');
+ return `${minutesConverted}:${secondsConverted}`
  }
 
 
@@ -76,8 +90,8 @@ const App = () => {
           <ProgressBar progress={progress}/>
         </View>   
       <View style={styles.minutes}>
-        <Text style={styles.textMinutes}>{initial}</Text>
-        <Text style={styles.textMinutes}>{remainingTime}</Text>
+        <Text style={styles.textMinutes}>{convertTime(initial)}</Text>
+        <Text style={styles.textMinutes}>{convertTime(remainingTime)}</Text>
       </View>
       </View>
     </SafeAreaView>
